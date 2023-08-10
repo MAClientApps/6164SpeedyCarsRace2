@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "655969137204",
+    "project_id": "mobile-app-internship",
+    "storage_bucket": "mobile-app-internship.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:655969137204:android:17226f9b09a432e5e01061",
+        "android_client_info": {
+          "package_name": "com.example.gamebox2d"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "655969137204-c4co7srdlmul52p448vs8agehn99juq4.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBRF0ek8SwvOp-xK-WYO67lMvBZvwK5pXc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "655969137204-c4co7srdlmul52p448vs8agehn99juq4.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

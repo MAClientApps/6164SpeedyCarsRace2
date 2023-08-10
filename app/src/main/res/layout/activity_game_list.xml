@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:background="#403d3d"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <!-- SearchView widget -->
+    <androidx.appcompat.widget.SearchView
+        android:id="@+id/searchView2"
+        android:layout_width="match_parent"
+        android:background="@drawable/search_view_rounded"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:focusableInTouchMode="true"
+        android:focusable="true"
+        app:iconifiedByDefault="false"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="16dp"
+        android:hint="Search Category"
+        android:queryHint="Search for categories" />
+
+    <ScrollView
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="75dp"
+        android:layout_gravity="center"
+        android:background="#403d3d">
+
+        <LinearLayout xmlns:tools="http://schemas.android.com/tools"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:layout_marginStart="5dp"
+            tools:context=".MainActivity"
+            android:background="#403d3d">
+
+            <GridLayout
+                android:id="@+id/gridLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:columnCount="2"
+                android:rowCount="100"
+                android:layout_marginBottom="30dp"
+                android:padding="30dp"
+                android:layout_gravity="center">
+                <!-- Add category items here dynamically using code -->
+            </GridLayout>
+        </LinearLayout>
+    </ScrollView>
+
+    <LinearLayout
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:id="@+id/bottomNavBar"
+    android:layout_alignParentBottom="true"
+    android:background="#151515"
+    android:gravity="center">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:orientation="vertical">
+            <Button
+                android:id="@+id/allCategories"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:background="@drawable/all_categories" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Browse"
+                android:id="@+id/browse"
+                android:onClick="loadMainActivity"
+                android:textColor="@color/white"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:gravity="center"
+            android:layout_marginStart="140dp"
+            android:layout_marginBottom="10dp"
+            android:orientation="vertical">
+            <Button
+                android:id="@+id/favourites"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:background="@drawable/empty_heart"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/favoritesText"
+                android:text="Favourite"
+                android:textColor="@color/white"/>
+        </LinearLayout>
+    </LinearLayout>
+</RelativeLayout>

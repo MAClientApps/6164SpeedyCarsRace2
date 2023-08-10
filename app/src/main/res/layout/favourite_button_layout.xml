@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:paddingBottom="5dp"
+    android:paddingTop="5dp"
+    android:gravity="center">
+
+    <!-- Heart icon (ImageView) -->
+    <ImageButton
+        android:id="@+id/favorite_icon"
+        android:layout_width="19dp"
+        android:layout_height="19dp"
+        android:layout_marginEnd="6dp"
+        android:background="@drawable/empty_heart"
+        android:contentDescription="heart"
+        android:scaleType="centerInside" />
+
+    <!-- Transparent "Favorite" label (TextView) -->
+    <TextView
+        android:id="@+id/favorite_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Favorite"
+        android:layout_marginStart="6dp"
+        android:textColor="@android:color/white"
+        android:alpha="0.7" /> <!-- Set transparency (0.0 to 1.0) -->
+</LinearLayout>
