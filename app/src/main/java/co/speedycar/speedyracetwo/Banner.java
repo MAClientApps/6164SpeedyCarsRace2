@@ -35,7 +35,7 @@ public class Banner
         int width = MainActivity.screenWidth;
 
         // Banner height on phones and tablets is 50 and 90, respectively
-        int heightPx = 100;
+        int heightPx = R.dimen.banner_height;
 
         adView.setLayoutParams( new LinearLayout.LayoutParams( width, heightPx ) );
 
