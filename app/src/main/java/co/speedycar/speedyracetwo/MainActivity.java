@@ -1,4 +1,4 @@
-package com.example.gamebox2d;
+package co.speedycar.speedyracetwo;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -17,11 +17,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
-import android.graphics.PorterDuff;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
-import android.graphics.drawable.GradientDrawable;
-import android.graphics.drawable.LayerDrawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
@@ -34,9 +31,12 @@ import android.widget.FrameLayout;
 import android.widget.GridLayout;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import com.google.android.material.bottomappbar.BottomAppBar;
+import co.speedycar.speedyracetwo.R;
+
+import com.applovin.sdk.AppLovinSdk;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
@@ -50,17 +50,21 @@ public class MainActivity extends AppCompatActivity {
     static ArrayList<Category> categoriesList;
     static ArrayList<Category> allCategories;
     Intent intent;
-    int screenWidth, screenHeight;
+    static int screenWidth, screenHeight;
     Button favoriteButton, allCategoriesButton;
     FrameLayout searchContainer;
     ProgressBar progressBar;
     JsonParsingTask asyncTask;
     SearchView searchView;
+    AppOpenManager appOpenManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        //opening ad
+//        appOpenManager = new AppOpenManager(this);
 
         //initialize
         categoriesList = new ArrayList<>();
@@ -70,6 +74,11 @@ public class MainActivity extends AppCompatActivity {
         Display display = getWindowManager().getDefaultDisplay();
         screenWidth = display.getWidth();
         screenHeight = display.getHeight();
+
+        LinearLayout banner_layout = findViewById(R.id.banner_layout);
+        //banner
+        Banner banner = new Banner(this, banner_layout);
+        banner.createBannerAd();
 
         //get ids
         favoriteButton = findViewById(R.id.favourites);
@@ -133,6 +142,9 @@ public class MainActivity extends AppCompatActivity {
 
         //parse json and place it in category list
         new JsonParsingTask(progressBar, MainActivity.this).execute(JSONLink);
+
+
+
     }
 
     //gets json file and converts it to response string
@@ -227,18 +239,15 @@ public class MainActivity extends AppCompatActivity {
             //styling
             categoryButton.setHeight((int)(screenHeight/6.5));
             categoryButton.setWidth((screenWidth/3));
-//            Picasso.get().invalidate(category.getImage());
+            //Picasso.get().invalidate(category.getImage());
             Util.changeButtonBackground(this, categoryButton, category.getImage());
 
             //add functionality
-            categoryButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    GameList.games = category.gameList;
-                    intent = new Intent(MainActivity.this, GameList.class);
-                    intent.putExtra("category", category.getName());
-                    startActivity(intent);
-                }
+            categoryButton.setOnClickListener(v -> {
+                GameList.games = category.gameList;
+                intent = new Intent(MainActivity.this, GameList.class);
+                intent.putExtra("category", category.getName());
+                startActivity(intent);
             });
 
             LinearLayout categoryLayout = new LinearLayout(this);

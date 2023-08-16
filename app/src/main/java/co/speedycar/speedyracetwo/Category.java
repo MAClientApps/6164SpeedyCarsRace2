@@ -1,4 +1,4 @@
-package com.example.gamebox2d;
+package co.speedycar.speedyracetwo;
 
 import java.util.ArrayList;
 

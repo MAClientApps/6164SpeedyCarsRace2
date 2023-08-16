@@ -1,33 +1,33 @@
 {
   "project_info": {
-    "project_number": "655969137204",
-    "project_id": "mobile-app-internship",
-    "storage_bucket": "mobile-app-internship.appspot.com"
+    "project_number": "253631498944",
+    "project_id": "supercarracer-db362",
+    "storage_bucket": "supercarracer-db362.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:655969137204:android:17226f9b09a432e5e01061",
+        "mobilesdk_app_id": "1:253631498944:android:7119b7817b578719443b25",
         "android_client_info": {
-          "package_name": "com.example.gamebox2d"
+          "package_name": "co.speedycar.speedyracetwo"
         }
       },
       "oauth_client": [
         {
-          "client_id": "655969137204-c4co7srdlmul52p448vs8agehn99juq4.apps.googleusercontent.com",
+          "client_id": "253631498944-09ua99tgmd4bcns3ljuarjlb3vb3fs87.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyBRF0ek8SwvOp-xK-WYO67lMvBZvwK5pXc"
+          "current_key": "AIzaSyBf24svNnpC2DOIk3P57cO0I3Kw52WPBrM"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "655969137204-c4co7srdlmul52p448vs8agehn99juq4.apps.googleusercontent.com",
+              "client_id": "253631498944-09ua99tgmd4bcns3ljuarjlb3vb3fs87.apps.googleusercontent.com",
               "client_type": 3
             }
           ]

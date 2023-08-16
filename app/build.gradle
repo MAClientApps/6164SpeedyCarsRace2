@@ -14,14 +14,16 @@ buildscript {
 
 plugins {
     id 'com.android.application'
+    id 'com.google.gms.google-services'
+    id 'com.google.firebase.crashlytics'
 }
 
 android {
-    namespace 'com.example.gamebox2d'
+    namespace 'co.speedycar.speedyracetwo'
     compileSdk 33
 
     defaultConfig {
-        applicationId "com.example.gamebox2d"
+        applicationId "co.speedycar.speedyracetwo"
         minSdk 21
         targetSdk 33
         versionCode 1

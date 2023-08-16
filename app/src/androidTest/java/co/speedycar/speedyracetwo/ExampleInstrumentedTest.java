@@ -1,4 +1,4 @@
-package com.example.gamebox2d;
+package co.speedycar.speedyracetwo;
 
 import android.content.Context;
 
@@ -21,6 +21,6 @@ public class ExampleInstrumentedTest {
     public void useAppContext() {
         // Context of the app under test.
         Context appContext = InstrumentationRegistry.getInstrumentation().getTargetContext();
-        assertEquals("com.example.gamebox2d", appContext.getPackageName());
+        assertEquals("co.speedycar.speedyracetwo", appContext.getPackageName());
     }
 }

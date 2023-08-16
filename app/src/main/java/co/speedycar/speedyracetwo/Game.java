@@ -1,4 +1,4 @@
-package com.example.gamebox2d;
+package co.speedycar.speedyracetwo;
 
 public class Game {
     private String name;

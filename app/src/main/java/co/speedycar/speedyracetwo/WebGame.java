@@ -1,4 +1,4 @@
-package com.example.gamebox2d;
+package co.speedycar.speedyracetwo;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -7,6 +7,8 @@ import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+
+import co.speedycar.speedyracetwo.R;
 
 public class WebGame extends AppCompatActivity {
 

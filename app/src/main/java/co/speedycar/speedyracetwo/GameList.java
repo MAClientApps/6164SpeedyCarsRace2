@@ -1,4 +1,4 @@
-package com.example.gamebox2d;
+package co.speedycar.speedyracetwo;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -14,7 +14,6 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.GridLayout;
 import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -22,7 +21,7 @@ import androidx.appcompat.widget.SearchView;
 import androidx.core.content.ContextCompat;
 
 
-import com.squareup.picasso.Picasso;
+import co.speedycar.speedyracetwo.R;
 
 import java.util.ArrayList;
 
@@ -40,6 +39,8 @@ public class GameList extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_game_list);
+
+        AppOpenManager appOpenManager = new AppOpenManager(this);
 
         // Get the screen width and height
         Display display = getWindowManager().getDefaultDisplay();
