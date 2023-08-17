@@ -1,258 +1,180 @@
 package co.speedycar.speedyracetwo;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.SearchView;
-import androidx.core.content.ContextCompat;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
-import android.os.AsyncTask;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Display;
 import android.view.Gravity;
 import android.view.View;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
-import android.widget.FrameLayout;
 import android.widget.GridLayout;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
-import android.widget.ProgressBar;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import co.speedycar.speedyracetwo.R;
+import androidx.appcompat.widget.SearchView;
+import androidx.core.content.ContextCompat;
 
-import com.applovin.sdk.AppLovinSdk;
-import com.squareup.picasso.Picasso;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
-    String JSONLink = "https://1hg26mzbpd.execute-api.eu-central-1.amazonaws.com/gbox_getgamescontent?language=en";
-    public static JSONObject json;
+    static int screenHeight, screenWidth;
+    public static ArrayList<Game> games;
+    public static ArrayList<Game> allGames;
     GridLayout gridLayout;
-    StringBuilder response;
-    //allCategories is fixed, categoriesList can change based on search
-    static ArrayList<Category> categoriesList;
-    static ArrayList<Category> allCategories;
     Intent intent;
-    static int screenWidth, screenHeight;
-    Button favoriteButton, allCategoriesButton;
-    FrameLayout searchContainer;
-    ProgressBar progressBar;
-    JsonParsingTask asyncTask;
+    Button allCategoriesButton, favoriteButton;
     SearchView searchView;
-    AppOpenManager appOpenManager;
+    SharedPreferences preferences;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-
-        //opening ad
-        appOpenManager = new AppOpenManager(this);
-
-        //initialize
-        categoriesList = new ArrayList<>();
-        allCategories = new ArrayList<>();
+        setContentView(R.layout.activity_game_list);
 
         // Get the screen width and height
         Display display = getWindowManager().getDefaultDisplay();
         screenWidth = display.getWidth();
         screenHeight = display.getHeight();
 
+        //initialize appOpen
+        AppOpenManager appOpenManager = new AppOpenManager(this);
+
+        //initialize banner
+        LinearLayout bannerLayout = findViewById(R.id.banner);
+        Banner banner = new Banner(this, bannerLayout);
+        banner.createBannerAd();
+
+        //initialize shared preferences
+        preferences = getSharedPreferences("MyPrefs", MODE_PRIVATE);
+
+        if(games!=null && preferences!=null && preferences.getString("category", "").equals("Favorites")) {
+            allGames = games;
+            setTitle("Favorites");
+        }
+        else{
+            //fill racing games
+            try {
+                fillGamesArray();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            setTitle("Speedy Cars Race 2");
+        }
+
+        //initialize all games
+        //save all games to contain all games
+        allGames = new ArrayList<>(games);
+
         //get ids
-        favoriteButton = findViewById(R.id.favourites);
+        gridLayout = findViewById(R.id.gridLayout);
         allCategoriesButton = findViewById(R.id.allCategories);
-        progressBar = findViewById(R.id.progressBar);
-        searchContainer = findViewById(R.id.searchContainer);
-        searchView = findViewById(R.id.searchView);
-        TextView browse = findViewById(R.id.browse);
-        TextView favoritesText = findViewById(R.id.favouritesText);
+        favoriteButton = findViewById(R.id.favourites);
+        searchView = findViewById(R.id.searchView2);
         LinearLayout bottomNavBar = findViewById(R.id.bottomNavBar);
+        TextView favoritesText = findViewById(R.id.favoritesText);
+        TextView browse = findViewById(R.id.browse);
 
-        //set search bar hint
-        searchView.setQueryHint("Search Category");
-        // Set an OnClickListener on the SearchView to trigger focus and show keyboard
-        searchContainer.setOnClickListener(v -> {
-            // Request focus on the search input field
-            searchView.setFocusable(true);
-            searchView.setFocusableInTouchMode(true);
-            searchView.requestFocus();
-
-            // Show the keyboard
-            InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-            imm.showSoftInput(searchView, InputMethodManager.SHOW_IMPLICIT);
-        });
-
-        //onclicks
-        //set functionality for category search bar
+        //set hint
+        searchView.setQueryHint("Search Game");
+        //set gae search bar functionality
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
-                updateFilteredCategories(query);
+                updateFilteredGames(query);
                 return false;
             }
 
             @Override
             public boolean onQueryTextChange(String newText) {
-                updateFilteredCategories(newText);
+                updateFilteredGames(newText);
                 return true;
             }
         });
-        //set functionality for favourite button click
-        favoriteButton.setOnClickListener(v -> {
-            filterFavourites();
-        });
-        favoritesText.setOnClickListener(v -> {
-            filterFavourites();
-        });
-        //set functionality for all categories click
-        allCategoriesButton.setOnClickListener(v -> {
-        });
-        //set onclick listener to browse
-        browse.setOnClickListener(v -> {
-        });
+        //same as main
+        allCategoriesButton.setOnClickListener(v -> loadMainActivity());
+        browse.setOnClickListener(v -> loadMainActivity());
+        //same as main
+        favoriteButton.setOnClickListener(v -> filterFavoriteGames());
+        favoritesText.setOnClickListener(v -> filterFavoriteGames());
         //disable clicking on navigation bar to avoid bugs
         bottomNavBar.setOnClickListener(v -> {
         });
-        // Initialize Picasso
-        Picasso.get().setIndicatorsEnabled(true);
-        gridLayout = findViewById(R.id.gridLayout);
-        categoriesList = new ArrayList<>();
 
-        //parse json and place it in category list
-        new JsonParsingTask(progressBar, MainActivity.this).execute(JSONLink);
-
-        LinearLayout banner_layout = findViewById(R.id.banner_layout);
-        //banner
-        Banner banner = new Banner(this, banner_layout);
-        banner.createBannerAd();
-    }
-
-    //gets json file and converts it to response string
-    public class JsonParsingTask extends AsyncTask<String, Void, JSONObject> {
-
-        private final ProgressBar progressBar; // Reference to your ProgressBar
-
-        public JsonParsingTask(ProgressBar progressBar, MainActivity activity) {
-            this.progressBar = progressBar;
-            // Reference to your activity (if needed)
-        }
-
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-            // Show loading indicator
-            progressBar.setVisibility(View.VISIBLE);
-        }
-
-        @Override
-        protected JSONObject doInBackground(String... urls) {
-            //convert json to string response
-            if(urls[0] == null)
-                return null;
-            JSONObject json = null;
-            try {
-                URL url = new URL(urls[0]);
-                HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-                connection.setRequestMethod("GET");
-                int responseCode = connection.getResponseCode();
-
-                if (responseCode == HttpURLConnection.HTTP_OK) {
-                    BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-                    response = new StringBuilder();
-                    String line;
-                    while ((line = reader.readLine()) != null) {
-                        response.append(line);
-                    }
-                    reader.close();
-
-                    json = new JSONObject(response.toString());
-                } else {
-                    Log.e("JsonParsingTask", "HTTP request failed with response code: " + responseCode);
-                }
-                connection.disconnect();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            MainActivity.json = json;
-            return json;
-        }
-
-        @Override
-        protected void onPostExecute(JSONObject json) {
-            super.onPostExecute(json);
-
-            if (json != null) {
-                // Parse and process the JSON data here
-                try {
-                    addJSONToCategoriesList(json);
-                    //style and add buttons tho the grid layout
-                    gridLayout.removeAllViews();
-                    addCategoryButtonsToGrid();
-                } catch (Exception ignored) {
-                }
-            } else {
-                System.out.println("HTTP request failed with response code: ");
-            }
-
-            // Hide loading indicator
-            progressBar.setVisibility(View.GONE);
-        }
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        // Make sure to cancel the AsyncTask if the activity is destroyed
-        if (asyncTask != null) {
-            asyncTask.cancel(true);
-        }
-    }
-
-    //add categories to grid
-    public void addCategoryButtonsToGrid(){
-        //empty the grid
         gridLayout.removeAllViews();
-        for(Category category : categoriesList){
-            Button categoryButton = new Button(MainActivity.this);
+        addGamesToGrid();
+    }
+    //used by search bar to display only searched games
+    private void updateFilteredGames(String query) {
+        ArrayList<Game> filteredGames = new ArrayList<>();
+        games = new ArrayList<>(allGames);
+        // Filter and add matching categories to the filtered list
+        for (Game game : allGames) {
+            if (game.getName().toLowerCase().contains(query.toLowerCase())) {
+                filteredGames.add(game);
+            }
+        }
+        // Clear the current categoriesList and add the filtered categories
+        games.clear();
+        games.addAll(filteredGames);
 
+        // Update the UI with filtered categories
+        addGamesToGrid();
+    }
+
+    public void addGamesToGrid(){
+        gridLayout.removeAllViews();
+        for(Game game : games){
+            //trying to make fav icon heart
+
+            //create new button for the game
+            Button gameButton = new Button(this);
             //dynamically configure button
             //styling
-            categoryButton.setHeight((int)(screenHeight/6.5));
-            categoryButton.setWidth((screenWidth/3));
-            //Picasso.get().invalidate(category.getImage());
-            Util.changeButtonBackground(this, categoryButton, category.getImage());
+            gameButton.setHeight((int)(screenHeight/6.5));
+            gameButton.setWidth((int)(screenWidth/3));
 
+//            Picasso.get().invalidate(game.getImage());
+            Util.changeButtonBackground(this, gameButton, game.getImage());
             //add functionality
-            categoryButton.setOnClickListener(v -> {
-                GameList.games = category.gameList;
-                intent = new Intent(MainActivity.this, GameList.class);
-                intent.putExtra("category", category.getName());
-                startActivity(intent);
+            gameButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    //start game web view
+                    intent = new Intent(MainActivity.this, WebGame.class);
+                    WebGame.gameURL = game.getGameLink();
+                    SharedPreferences.Editor editor = preferences.edit();
+                    editor.putString("category", "Not Favorite");
+                    editor.apply();
+                    startActivity(intent);
+                    overridePendingTransition(0, 0); // Remove animation
+                }
             });
 
-            LinearLayout categoryLayout = new LinearLayout(this);
+            //game container = game image + game text
+            //favButtonLayout = heart icon + favorite text
+            //verticalLayout = game container + favButtonLayout
+            //add container for text and image
+            LinearLayout gameContainer = new LinearLayout(this);
 
-            //add and style text to category
+            //text for game name
             TextView textBackground = new TextView(this);
             textBackground.setWidth((screenWidth/3));
-            textBackground.setText(category.getName());
+            textBackground.setText(game.getName());
             textBackground.setTextColor(Color.rgb(244, 67, 54));
             textBackground.setBackgroundColor(Color.rgb(50, 50, 50)); // Set the background color to dark gray
             textBackground.setShadowLayer(10, 0, 0, Color.rgb(0, 0, 0)); // Set the shadow properties
@@ -260,111 +182,137 @@ public class MainActivity extends AppCompatActivity {
             textBackground.setGravity(Gravity.CENTER_HORIZONTAL);
             textBackground.setGravity(Gravity.BOTTOM);
 
-            //style categoryLayout
+            //gameContainer styling
             LinearLayout.LayoutParams layoutParamsText = new LinearLayout.LayoutParams(
                     LinearLayout.LayoutParams.WRAP_CONTENT , LinearLayout.LayoutParams.WRAP_CONTENT);
-            layoutParamsText.setMargins(25,25,25,25);
-            categoryLayout.setLayoutParams(layoutParamsText);
-            categoryLayout.setOrientation(LinearLayout.VERTICAL);
-            //style the categoryLayout (add roundness and shades)
+            layoutParamsText.setMargins(25,25,25,10);
+            gameContainer.setLayoutParams(layoutParamsText);
+            gameContainer.setOrientation(LinearLayout.VERTICAL);
             Drawable drawable = ContextCompat.getDrawable(this, R.drawable.text_background);
-            categoryLayout.setBackground(drawable);
-            categoryLayout.addView(categoryButton);
-            categoryLayout.addView(textBackground);
-            //add the categoryLayouts to the grid
-            gridLayout.addView(categoryLayout);
-        }
-    }
+            gameContainer.setBackground(drawable);
+            gameContainer.addView(gameButton);
+            gameContainer.addView(textBackground);
 
-    //used by search bar to filter out games
-    private void updateFilteredCategories(String query) {
-        ArrayList<Category> filteredCategories = new ArrayList<>();
-        categoriesList = new ArrayList<>(allCategories);
-        // Filter and add matching categories to the filtered list
-        for (Category category : allCategories) {
-            if (category.getName().toLowerCase().contains(query.toLowerCase())) {
-                filteredCategories.add(category);
-            }
-        }
+            // Create a LinearLayout to hold the game container and favorite button
+            LinearLayout verticalLayout = new LinearLayout(this);
+            verticalLayout.setOrientation(LinearLayout.VERTICAL);
 
-        // Clear the current categoriesList and add the filtered categories
-        categoriesList.clear();
-        categoriesList.addAll(filteredCategories);
+            // Inflate the favorite button layout
+            LinearLayout favButtonLayout = (LinearLayout) getLayoutInflater().inflate(R.layout.favourite_button_layout, null);
 
-        // Update the UI with filtered categories
-        addCategoryButtonsToGrid();
-    }
+            //add onclick to favourite button
+            ImageButton favoriteButton = favButtonLayout.findViewById(R.id.favorite_icon);
+            //check if button is favorite
+            boolean isFavorite = preferences.getBoolean("favorite_game_" + game.getName(), false);
+            if(isFavorite) // make it red
+                favoriteButton.setImageResource(R.drawable.red_heart);
+            else
+                favoriteButton.setImageResource(R.drawable.empty_heart);
 
-    //fills the categoriesList and allCategories arrays
-    public static void addJSONToCategoriesList(@NonNull JSONObject json) throws JSONException {
-        // Parse and process the JSON data here
-        // Process the "Service" object
-        JSONObject service = json.getJSONObject("Service");
-        String serviceName = service.getString("Name");
-        String serviceIcon = service.getString("Icon");
-
-        // Process the "Content" array
-        JSONArray contentArray = json.getJSONArray("Content");
-        for (int i = 0; i < contentArray.length(); i++) { //content only has HTML5
-            JSONObject contentObject = contentArray.getJSONObject(i);
-            JSONArray html5Array = contentObject.getJSONArray("HTML5");
-            for (int j = 0; j < html5Array.length(); j++) {
-                JSONObject html5Object = html5Array.getJSONObject(j);
-                String catName = html5Object.getString("Name");
-                String catIcon = html5Object.getString("Icon");
-                // ... and so on for other fields
-
-                //new category add it to category list
-                Category category = new Category(catName, catIcon);
-                categoriesList.add(category);
-
-                //array of games fot the category
-                JSONArray games = html5Object.getJSONArray("Content");
-                for (int k = 0; k < games.length(); k++) {
-                    JSONObject game = games.getJSONObject(k);
-                    String title = game.getString("Title");
-                    String thumbnail = game.getString("Thumbnail_Large");
-                    String gameLink = game.getString("Content");
-
-                    //create a new game
-                    Game g = new Game(title, thumbnail, gameLink);
-
-                    //add the games to the appropriate category
-                    category.gameList.add(g);
+            favoriteButton.setOnClickListener(v -> {
+                boolean isFavorite1 = preferences.getBoolean("favorite_game_" + game.getName(), false);
+                if(!isFavorite1){ //save game
+                    favoriteButton.setImageResource(R.drawable.red_heart);
+                    SharedPreferences.Editor editor = preferences.edit();
+                    editor.putBoolean("favorite_game_" + game.getName(), true);
+                    editor.apply();
+                }else{
+                    favoriteButton.setImageResource(R.drawable.empty_heart);
+                    SharedPreferences.Editor editor = preferences.edit();
+                    editor.putBoolean("favorite_game_" + game.getName(), false);
+                    editor.apply();
                 }
-                //update category thumbnail to be the thumbnail of the first game in its games
-                category.setImage(category.gameList.get(0).getImage());
-            }
+            });
+
+            // Add game container and favorite button to the verticalLayout
+            verticalLayout.addView(gameContainer);
+            verticalLayout.addView(favButtonLayout);
+            //add vertical layout to gridLayout
+            gridLayout.addView(verticalLayout);
         }
-        //save all categories in aux list
-        allCategories = new ArrayList<>(categoriesList);
     }
 
-    //filter favourites
-    public void filterFavourites(){
+    public static boolean containsGame(ArrayList<Game> games, String gameName){
+        for(Game game : games)
+            if(game.getName().equals(gameName))
+                return true;
+        return false;
+    }
+
+    public void loadMainActivity(){
+        intent = new Intent(MainActivity.this, MainActivity.class);
+        SharedPreferences.Editor editor = preferences.edit();
+        editor.putString("category", "Not Favorite");
+        editor.apply();
+        startActivity(intent);
+        overridePendingTransition(0, 0); // Remove animation
+    }
+
+    public void filterFavoriteGames(){
+        //change src to full heart
         //initialize shared preferences
         SharedPreferences preferences = getSharedPreferences("MyPrefs", MODE_PRIVATE);
         //clear any games in the game list for the game_list activity
-        GameList.games = new ArrayList<>();
+        MainActivity.games = new ArrayList<>();
         //loop through all games in all categories and only add favorite games
-        for(Category category : allCategories){
-            for(Game game : category.gameList){
+
+            for(Game game : allGames){
                 boolean isFavorite = preferences.getBoolean("favorite_game_" + game.getName(), false);
                 //if its a favorite game
                 if(isFavorite){
-                    if(!GameList.containsGame(GameList.games, game.getName()))
-                        GameList.games.add(game);
+                    if(!containsGame(MainActivity.games, game.getName()))
+                        MainActivity.games.add(game);
                 }
             }
-        }
+
         //start gameList activity
         //set title
-        intent = new Intent(MainActivity.this, GameList.class);
-        intent.putExtra("category", "Favorites");
+        intent = new Intent(MainActivity.this, MainActivity.class);
+        SharedPreferences.Editor editor = preferences.edit();
+        editor.putString("category", "Favorites");
+        editor.apply();
         startActivity(intent);
+        overridePendingTransition(0, 0); // Remove animation
+    }
+
+    public void fillGamesArray() throws IOException {
+        StringBuilder content = new StringBuilder();
+        InputStream inputStream = getResources().openRawResource(R.raw.racing_cars_json);
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                content.append(line);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        String jsonData = content.toString();
+
+        try {
+            JSONObject root = new JSONObject(jsonData);
+            JSONArray contentArray = root.getJSONArray("Content");
+
+            games = new ArrayList<>();
+
+            for (int i = 0; i < contentArray.length(); i++) {
+                JSONObject gameObj = contentArray.getJSONObject(i);
+
+                String name = gameObj.getString("Title");
+                String image = gameObj.getString("Thumbnail_Large");
+                String gameLink = gameObj.getString("Content");
+
+                Game game = new Game(name, image, gameLink);
+                games.add(game);
+            }
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
     public void onBackPressed() {
     }
+
 }
