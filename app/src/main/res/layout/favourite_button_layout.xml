@@ -14,7 +14,7 @@
         android:layout_width="19dp"
         android:layout_height="19dp"
         android:layout_marginEnd="6dp"
-        android:background="@drawable/empty_heart"
+        android:background="@drawable/ic_heart"
         android:contentDescription="heart"
         android:scaleType="centerInside" />
 

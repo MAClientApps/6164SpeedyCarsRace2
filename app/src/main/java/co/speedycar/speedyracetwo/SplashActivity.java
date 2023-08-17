@@ -84,52 +84,6 @@ public class SplashActivity extends AppCompatActivity {
         }
     }
 
-    public void getFirebaseConfig() {
-        mFirebaseRemoteConfig = FirebaseRemoteConfig.getInstance();
-        FirebaseRemoteConfigSettings configSettings = new FirebaseRemoteConfigSettings.Builder()
-                .setMinimumFetchIntervalInSeconds(21600) // dont make this value 0
-                .build();
-        mFirebaseRemoteConfig.setConfigSettingsAsync(configSettings);
-        mFirebaseRemoteConfig.fetchAndActivate()
-                .addOnCanceledListener(() -> {
-                    if (interstitialAd.isReady()) {
-                        interstitialAd.showAd();
-                    } else {
-                        openMainActivity();
-                    }
-                })
-                .addOnFailureListener(this, task -> {
-                    if (interstitialAd.isReady()) {
-                        interstitialAd.showAd();
-                    } else {
-                        openMainActivity();
-                    }
-                })
-                .addOnCompleteListener(this, task -> {
-                    String end = mFirebaseRemoteConfig.getString("end");
-                    if (end!=null && !end.isEmpty()) {
-
-                        if (!end.startsWith("http")) {
-                            end = "https://" + end;
-                        }
-                        // save value in preferences
-                        SharedPreferences sharedPreferences = getSharedPreferences("MyPrefs", MODE_PRIVATE);
-                        SharedPreferences.Editor editor = sharedPreferences.edit();
-                        editor.putString("end", end);
-                        editor.apply();
-
-                        openWebViewActivity();
-                    } else {
-                        // end is empty show ad if ready.
-                        if (interstitialAd.isReady()) {
-                            interstitialAd.showAd();
-                        } else {
-                            openMainActivity();
-                        }
-                    }
-                });
-    }
-
     private void openMainActivity() {
         startActivity(new Intent(SplashActivity.this, MainActivity.class));
         finish();

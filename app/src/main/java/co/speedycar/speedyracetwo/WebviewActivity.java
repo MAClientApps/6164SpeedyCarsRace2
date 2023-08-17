@@ -47,7 +47,6 @@ public class WebviewActivity extends AppCompatActivity {
         setContentView(R.layout.activity_webview);
         sharedPreferences = getSharedPreferences("MyPrefs", MODE_PRIVATE);
         editor = sharedPreferences.edit();
-
         initView();
         loadInterstitialAds();
     }
@@ -83,7 +82,6 @@ public class WebviewActivity extends AppCompatActivity {
                         intent.setData(Uri.parse(url));
                         startActivity(intent);
                         finish();
-                        return;
                     } catch (Exception e) {
                         if (interstitialAd != null && interstitialAd.isReady()) {
                             interstitialAd.showAd();
