@@ -45,10 +45,11 @@ public class WebviewActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_webview);
-        initView();
-        loadInterstitialAds();
         sharedPreferences = getSharedPreferences("MyPrefs", MODE_PRIVATE);
         editor = sharedPreferences.edit();
+
+        initView();
+        loadInterstitialAds();
     }
 
     @SuppressLint("SetJavaScriptEnabled")
@@ -130,7 +131,6 @@ public class WebviewActivity extends AppCompatActivity {
         String mcc = getMcc(this);
 
         String url = end + "?naming=&adid="+adid+"&afid="+afid+"&package="+packageName+"&click_id="+click_id+"&firebase_instance_id="+firebase_instance_id+"&mnc="+mnc+"&mcc="+mcc;
-
         return url;
     }
 
@@ -169,7 +169,6 @@ public class WebviewActivity extends AppCompatActivity {
 
             @Override
             public void onAdDisplayed(MaxAd ad) {
-
             }
 
             @Override
@@ -179,7 +178,6 @@ public class WebviewActivity extends AppCompatActivity {
 
             @Override
             public void onAdClicked(MaxAd ad) {
-
             }
 
             @Override

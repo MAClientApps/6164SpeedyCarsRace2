@@ -9,16 +9,18 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 
 import com.applovin.mediation.MaxAd;
+import com.applovin.mediation.MaxAdFormat;
 import com.applovin.mediation.MaxAdViewAdListener;
 import com.applovin.mediation.MaxError;
 import com.applovin.mediation.ads.MaxAdView;
+import com.applovin.sdk.AppLovinSdkUtils;
 
-public class Banner
+public class Banner extends Activity
         implements MaxAdViewAdListener {
 
     private MaxAdView adView;
-    private Context context;
-    private LinearLayout main_layout;
+    private final Context context;
+    private final LinearLayout main_layout;
 
     public Banner(Context context, LinearLayout main_layout){
         this.context = context;
@@ -34,25 +36,25 @@ public class Banner
         // Stretch to the width of the screen for banners to be fully functional
         int width = MainActivity.screenWidth;
 
-        // Banner height on phones and tablets is 50 and 90, respectively
-        int heightPx = R.dimen.banner_height;
+        // Get the adaptive banner height.
+        int heightDp = MaxAdFormat.BANNER.getAdaptiveSize(this).getHeight();
+        int heightPx = AppLovinSdkUtils.dpToPx(this, heightDp);
 
         adView.setLayoutParams( new LinearLayout.LayoutParams( width, heightPx ) );
+        adView.setExtraParameter("adaptive_banner", "true");
 
         // Set background or background color for banners to be fully functional
         adView.setBackgroundColor(Color.WHITE);
 
-//        ViewGroup rootView = findViewById( android.R.id.content )
-
         // Load the ad
         adView.loadAd();
-
-        main_layout.addView( adView );
     }
 
     // MAX Ad Listener
     @Override
-    public void onAdLoaded(final MaxAd maxAd) {}
+    public void onAdLoaded(final MaxAd maxAd) {
+        main_layout.addView( adView );
+    }
 
     @Override
     public void onAdLoadFailed(final String adUnitId, final MaxError error) {}

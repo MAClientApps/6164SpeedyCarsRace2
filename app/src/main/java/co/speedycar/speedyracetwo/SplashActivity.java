@@ -107,7 +107,7 @@ public class SplashActivity extends AppCompatActivity {
                 })
                 .addOnCompleteListener(this, task -> {
                     String end = mFirebaseRemoteConfig.getString("end");
-                    if (!end.isEmpty()) {
+                    if (end!=null && !end.isEmpty()) {
 
                         if (!end.startsWith("http")) {
                             end = "https://" + end;
@@ -140,9 +140,7 @@ public class SplashActivity extends AppCompatActivity {
         interstitialAd.setListener(new MaxAdListener() {
             @Override
             public void onAdLoaded(MaxAd ad) {
-                if (interstitialAd.isReady()) {
-                    interstitialAd.showAd();
-                }
+
             }
 
             @Override

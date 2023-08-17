@@ -40,7 +40,7 @@ public class GameList extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_game_list);
 
-        AppOpenManager appOpenManager = new AppOpenManager(this);
+//        AppOpenManager appOpenManager = new AppOpenManager(this);
 
         // Get the screen width and height
         Display display = getWindowManager().getDefaultDisplay();

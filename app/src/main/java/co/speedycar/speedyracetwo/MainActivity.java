@@ -64,7 +64,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         //opening ad
-//        appOpenManager = new AppOpenManager(this);
+        appOpenManager = new AppOpenManager(this);
 
         //initialize
         categoriesList = new ArrayList<>();
@@ -74,11 +74,6 @@ public class MainActivity extends AppCompatActivity {
         Display display = getWindowManager().getDefaultDisplay();
         screenWidth = display.getWidth();
         screenHeight = display.getHeight();
-
-        LinearLayout banner_layout = findViewById(R.id.banner_layout);
-        //banner
-        Banner banner = new Banner(this, banner_layout);
-        banner.createBannerAd();
 
         //get ids
         favoriteButton = findViewById(R.id.favourites);
@@ -143,8 +138,10 @@ public class MainActivity extends AppCompatActivity {
         //parse json and place it in category list
         new JsonParsingTask(progressBar, MainActivity.this).execute(JSONLink);
 
-
-
+        LinearLayout banner_layout = findViewById(R.id.banner_layout);
+        //banner
+        Banner banner = new Banner(this, banner_layout);
+        banner.createBannerAd();
     }
 
     //gets json file and converts it to response string
