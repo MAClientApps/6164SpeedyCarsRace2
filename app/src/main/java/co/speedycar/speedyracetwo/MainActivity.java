@@ -21,6 +21,11 @@ import androidx.appcompat.widget.SearchView;
 import androidx.core.content.ContextCompat;
 
 
+import com.applovin.mediation.MaxAd;
+import com.applovin.mediation.MaxAdListener;
+import com.applovin.mediation.MaxError;
+import com.applovin.mediation.ads.MaxInterstitialAd;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -40,6 +45,8 @@ public class MainActivity extends AppCompatActivity {
     Button allCategoriesButton, favoriteButton;
     SearchView searchView;
     SharedPreferences preferences;
+    private MaxInterstitialAd interstitialAd;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,6 +65,9 @@ public class MainActivity extends AppCompatActivity {
         LinearLayout bannerLayout = findViewById(R.id.banner);
         Banner banner = new Banner(this, bannerLayout);
         banner.createBannerAd();
+
+        //load ads
+        loadInterstitialAds();
 
         //initialize shared preferences
         preferences = getSharedPreferences("MyPrefs", MODE_PRIVATE);
@@ -161,6 +171,7 @@ public class MainActivity extends AppCompatActivity {
                     editor.putString("category", "Not Favorite");
                     editor.apply();
                     startActivity(intent);
+                    showAd();
                     overridePendingTransition(0, 0); // Remove animation
                 }
             });
@@ -315,4 +326,48 @@ public class MainActivity extends AppCompatActivity {
     public void onBackPressed() {
     }
 
+    public void loadInterstitialAds(){
+
+        interstitialAd = new MaxInterstitialAd(getString(R.string.applovin_interstitial), this);
+        interstitialAd.setListener(new MaxAdListener() {
+
+            @Override
+            public void onAdLoaded(MaxAd maxAd) {
+            }
+
+            @Override
+            public void onAdDisplayed(MaxAd maxAd) {
+
+            }
+
+            @Override
+            public void onAdHidden(MaxAd maxAd) {
+
+            }
+
+            @Override
+            public void onAdClicked(MaxAd maxAd) {
+
+            }
+
+            @Override
+            public void onAdLoadFailed(String s, MaxError maxError) {
+
+            }
+
+            @Override
+            public void onAdDisplayFailed(MaxAd maxAd, MaxError maxError) {
+
+            }
+        });
+
+        interstitialAd.loadAd();
+    }
+
+    public void showAd(){
+        if(interstitialAd.isReady())
+            interstitialAd.showAd();
+        else
+            interstitialAd.loadAd();
+    }
 }
