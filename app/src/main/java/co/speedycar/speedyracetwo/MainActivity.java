@@ -85,7 +85,7 @@ public class MainActivity extends AppCompatActivity {
         //get ids
         gamesGrid = findViewById(R.id.gridLayout);
         gamesGrid.setLayoutManager(new GridLayoutManager(this, 2));
-        gamesAdapter = new GamesAdapter(games, new GamesAdapter.GameListener() {
+        gamesAdapter = new GamesAdapter(this, games, new GamesAdapter.GameListener() {
             @Override
             public void onGameClick(Game game) {
                 intent = new Intent(MainActivity.this, WebGame.class);
@@ -101,19 +101,15 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onFavoriteClick(Game game) {
                 boolean isFavorite1 = preferences.getBoolean("favorite_game_" + game.getName(), false);
+                SharedPreferences.Editor editor = preferences.edit();
                 if (!isFavorite1) { //save game
-
-                    SharedPreferences.Editor editor = preferences.edit();
                     editor.putBoolean("favorite_game_" + game.getName(), true);
-                    editor.apply();
                 } else {
-
-                    SharedPreferences.Editor editor = preferences.edit();
                     editor.putBoolean("favorite_game_" + game.getName(), false);
-                    editor.apply();
                 }
+                editor.apply();
             }
-        });
+        }, preferences);
         gamesGrid.setAdapter(gamesAdapter);
         allCategoriesButton = findViewById(R.id.allCategories);
         favoriteButton = findViewById(R.id.favourites);

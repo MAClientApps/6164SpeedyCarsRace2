@@ -1,5 +1,9 @@
 package co.speedycar.speedyracetwo;
 
+import android.content.Context;
+import android.content.SharedPreferences;
+import android.graphics.drawable.AdaptiveIconDrawable;
+import android.graphics.drawable.Drawable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -7,6 +11,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -18,10 +23,14 @@ public class GamesAdapter extends RecyclerView.Adapter<GamesAdapter.ViewHolder> 
 
     ArrayList<Game> games;
     GameListener listener;
+    SharedPreferences preferences;
+    Context context;
 
-    public GamesAdapter(ArrayList<Game> games, GameListener listener) {
+    public GamesAdapter(Context context, ArrayList<Game> games, GameListener listener, SharedPreferences preferences) {
+        this.context = context;
         this.games = games;
         this.listener = listener;
+        this.preferences = preferences;
     }
 
     @NonNull
@@ -66,6 +75,12 @@ public class GamesAdapter extends RecyclerView.Adapter<GamesAdapter.ViewHolder> 
                     .load(game.getImage())
                     .into(image);
             title.setText(game.getName());
+            //check if favourite and change heart icon
+            boolean isFavorite = preferences.getBoolean("favorite_game_" + game.getName(), false);
+            int newDrawableResource = isFavorite ? R.drawable.ic_heart_filled : R.drawable.ic_heart;
+            Drawable drawable = ContextCompat.getDrawable(context, newDrawableResource);
+            drawable.setBounds(0, 0, drawable.getIntrinsicWidth(), drawable.getIntrinsicHeight());
+            favorite.setCompoundDrawablesRelative(drawable, null, null, null);
             favorite.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
