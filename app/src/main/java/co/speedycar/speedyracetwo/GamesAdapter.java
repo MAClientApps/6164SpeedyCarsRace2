@@ -47,7 +47,7 @@ public class GamesAdapter extends RecyclerView.Adapter<GamesAdapter.ViewHolder> 
     public void onBindViewHolder(@NonNull GamesAdapter.ViewHolder holder, int position) {
         Game game = games.get(position);
         if (game != null) {
-            holder.bindView(game);
+            holder.bindView(game, position);
         }
     }
 
@@ -70,7 +70,7 @@ public class GamesAdapter extends RecyclerView.Adapter<GamesAdapter.ViewHolder> 
             favorite = itemView.findViewById(R.id.fav_btn);
         }
 
-        public void bindView(Game game) {
+        public void bindView(Game game, int position) {
             Picasso.get()
                     .load(game.getImage())
                     .into(image);
@@ -81,25 +81,15 @@ public class GamesAdapter extends RecyclerView.Adapter<GamesAdapter.ViewHolder> 
             Drawable drawable = ContextCompat.getDrawable(context, newDrawableResource);
             drawable.setBounds(0, 0, drawable.getIntrinsicWidth(), drawable.getIntrinsicHeight());
             favorite.setCompoundDrawablesRelative(drawable, null, null, null);
-            favorite.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    listener.onFavoriteClick(game);
-                }
-            });
-            itemView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    listener.onGameClick(game);
-                }
-            });
+            favorite.setOnClickListener(view -> listener.onFavoriteClick(game, position));
+            itemView.setOnClickListener(view -> listener.onGameClick(game));
         }
     }
 
     public interface GameListener {
         void onGameClick(Game game);
 
-        void onFavoriteClick(Game game);
+        void onFavoriteClick(Game game, int position);
     }
 
 }

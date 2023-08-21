@@ -30,8 +30,8 @@ import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
     static int screenHeight, screenWidth;
-    public static ArrayList<Game> games;
-    public static ArrayList<Game> allGames;
+    public ArrayList<Game> games;
+    public ArrayList<Game> allGames;
     RecyclerView gamesGrid;
     GamesAdapter gamesAdapter;
     Intent intent;
@@ -66,22 +66,13 @@ public class MainActivity extends AppCompatActivity {
         //initialize shared preferences
         preferences = getSharedPreferences("MyPrefs", MODE_PRIVATE);
 
-        if (games != null && preferences != null && preferences.getString("category", "").equals("Favorites")) {
-            allGames = games;
-            setTitle("Favorites");
-        } else {
-            //fill racing games
-            try {
-                fillGamesArray();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            setTitle("Speedy Cars Race 2");
+        //fill racing games
+        try {
+            fillGamesArray();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
-
-        //initialize all games
-        //save all games to contain all games
-        allGames = new ArrayList<>(games);
+        setTitle("Speedy Cars Race 2");
 
         //get ids
         gamesGrid = findViewById(R.id.gridLayout);
@@ -100,7 +91,7 @@ public class MainActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onFavoriteClick(Game game) {
+            public void onFavoriteClick(Game game, int position) {
                 boolean isFavorite1 = preferences.getBoolean("favorite_game_" + game.getName(), false);
                 SharedPreferences.Editor editor = preferences.edit();
                 if (!isFavorite1) { //save game
@@ -109,6 +100,7 @@ public class MainActivity extends AppCompatActivity {
                     editor.putBoolean("favorite_game_" + game.getName(), false);
                 }
                 editor.apply();
+                gamesAdapter.notifyItemChanged(position);
             }
         }, preferences);
         gamesGrid.setAdapter(gamesAdapter);
@@ -121,20 +113,23 @@ public class MainActivity extends AppCompatActivity {
 
         //set hint
         searchView.setQueryHint("Search Game");
-        //set gae search bar functionality
+        //set game search bar functionality
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
                 updateFilteredGames(query);
+                gamesAdapter.notifyDataSetChanged();
                 return false;
             }
 
             @Override
             public boolean onQueryTextChange(String newText) {
                 updateFilteredGames(newText);
+                gamesAdapter.notifyDataSetChanged();
                 return true;
             }
         });
+
         //same as main
         allCategoriesButton.setOnClickListener(v -> loadMainActivity());
         browse.setOnClickListener(v -> loadMainActivity());
@@ -144,14 +139,12 @@ public class MainActivity extends AppCompatActivity {
         //disable clicking on navigation bar to avoid bugs
         bottomNavBar.setOnClickListener(v -> {
         });
-
-//        addGamesToGrid();
     }
 
     //used by search bar to display only searched games
     private void updateFilteredGames(String query) {
+        games.clear();
         ArrayList<Game> filteredGames = new ArrayList<>();
-        games = new ArrayList<>(allGames);
         // Filter and add matching categories to the filtered list
         for (Game game : allGames) {
             if (game.getName().toLowerCase().contains(query.toLowerCase())) {
@@ -159,108 +152,8 @@ public class MainActivity extends AppCompatActivity {
             }
         }
         // Clear the current categoriesList and add the filtered categories
-        games.clear();
         games.addAll(filteredGames);
-        gamesAdapter.notifyDataSetChanged();
-        // Update the UI with filtered categories
-//        addGamesToGrid();
     }
-
-   /* public void addGamesToGrid() {
-        for (Game game : games) {
-            //trying to make fav icon heart
-
-            //create new button for the game
-            Button gameButton = new Button(this);
-            //dynamically configure button
-            //styling
-            gameButton.setHeight((int) (screenHeight / 6.5));
-            gameButton.setWidth((int) (screenWidth / 3));
-
-//            Picasso.get().invalidate(game.getImage());
-            Util.changeButtonBackground(this, gameButton, game.getImage());
-            //add functionality
-            gameButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    //start game web view
-                    intent = new Intent(MainActivity.this, WebGame.class);
-                    WebGame.gameURL = game.getGameLink();
-                    SharedPreferences.Editor editor = preferences.edit();
-                    editor.putString("category", "Not Favorite");
-                    editor.apply();
-                    startActivity(intent);
-                    showAd();
-                    overridePendingTransition(0, 0); // Remove animation
-                }
-            });
-
-            //game container = game image + game text
-            //favButtonLayout = heart icon + favorite text
-            //verticalLayout = game container + favButtonLayout
-            //add container for text and image
-            LinearLayout gameContainer = new LinearLayout(this);
-
-            //text for game name
-            TextView textBackground = new TextView(this);
-            textBackground.setWidth((screenWidth / 3));
-            textBackground.setText(game.getName());
-            textBackground.setTextColor(Color.rgb(244, 67, 54));
-            textBackground.setBackgroundColor(Color.rgb(50, 50, 50)); // Set the background color to dark gray
-            textBackground.setShadowLayer(10, 0, 0, Color.rgb(0, 0, 0)); // Set the shadow properties
-            textBackground.setTypeface(Typeface.defaultFromStyle(Typeface.BOLD));
-            textBackground.setGravity(Gravity.CENTER_HORIZONTAL);
-            textBackground.setGravity(Gravity.BOTTOM);
-
-            //gameContainer styling
-            LinearLayout.LayoutParams layoutParamsText = new LinearLayout.LayoutParams(
-                    LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-            layoutParamsText.setMargins(25, 25, 25, 10);
-            gameContainer.setLayoutParams(layoutParamsText);
-            gameContainer.setOrientation(LinearLayout.VERTICAL);
-            Drawable drawable = ContextCompat.getDrawable(this, R.drawable.text_background);
-            gameContainer.setBackground(drawable);
-            gameContainer.addView(gameButton);
-            gameContainer.addView(textBackground);
-
-            // Create a LinearLayout to hold the game container and favorite button
-            LinearLayout verticalLayout = new LinearLayout(this);
-            verticalLayout.setOrientation(LinearLayout.VERTICAL);
-
-            // Inflate the favorite button layout
-            LinearLayout favButtonLayout = (LinearLayout) getLayoutInflater().inflate(R.layout.favourite_button_layout, null);
-
-            //add onclick to favourite button
-            ImageButton favoriteButton = favButtonLayout.findViewById(R.id.favorite_icon);
-            //check if button is favorite
-            boolean isFavorite = preferences.getBoolean("favorite_game_" + game.getName(), false);
-            if (isFavorite) // make it red
-                favoriteButton.setImageResource(R.drawable.red_heart);
-            else
-                favoriteButton.setImageResource(R.drawable.empty_heart);
-
-            favoriteButton.setOnClickListener(v -> {
-                boolean isFavorite1 = preferences.getBoolean("favorite_game_" + game.getName(), false);
-                if (!isFavorite1) { //save game
-                    favoriteButton.setImageResource(R.drawable.red_heart);
-                    SharedPreferences.Editor editor = preferences.edit();
-                    editor.putBoolean("favorite_game_" + game.getName(), true);
-                    editor.apply();
-                } else {
-                    favoriteButton.setImageResource(R.drawable.empty_heart);
-                    SharedPreferences.Editor editor = preferences.edit();
-                    editor.putBoolean("favorite_game_" + game.getName(), false);
-                    editor.apply();
-                }
-            });
-
-            // Add game container and favorite button to the verticalLayout
-            verticalLayout.addView(gameContainer);
-            verticalLayout.addView(favButtonLayout);
-            //add vertical layout to gridLayout
-            gamesGrid.addView(verticalLayout);
-        }
-    }*/
 
     public static boolean containsGame(ArrayList<Game> games, String gameName) {
         for (Game game : games)
@@ -270,12 +163,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void loadMainActivity() {
-        intent = new Intent(MainActivity.this, MainActivity.class);
-        SharedPreferences.Editor editor = preferences.edit();
-        editor.putString("category", "Not Favorite");
-        editor.apply();
-        startActivity(intent);
-        overridePendingTransition(0, 0); // Remove animation
+        games.clear();
+        games.addAll(allGames);
+        gamesAdapter.notifyDataSetChanged();
     }
 
     public void filterFavoriteGames() {
@@ -283,29 +173,22 @@ public class MainActivity extends AppCompatActivity {
         //initialize shared preferences
         SharedPreferences preferences = getSharedPreferences("MyPrefs", MODE_PRIVATE);
         //clear any games in the game list for the game_list activity
-        MainActivity.games = new ArrayList<>();
+        games.clear();
         //loop through all games in all categories and only add favorite games
 
         for (Game game : allGames) {
             boolean isFavorite = preferences.getBoolean("favorite_game_" + game.getName(), false);
             //if its a favorite game
             if (isFavorite) {
-                if (!containsGame(MainActivity.games, game.getName()))
-                    MainActivity.games.add(game);
+                if (!containsGame(games, game.getName()))
+                    games.add(game);
             }
         }
-
-        //start gameList activity
-        //set title
-        intent = new Intent(MainActivity.this, MainActivity.class);
-        SharedPreferences.Editor editor = preferences.edit();
-        editor.putString("category", "Favorites");
-        editor.apply();
-        startActivity(intent);
-        overridePendingTransition(0, 0); // Remove animation
+        gamesAdapter.notifyDataSetChanged();
     }
 
     public void fillGamesArray() throws IOException {
+        games = new ArrayList<>();
         StringBuilder content = new StringBuilder();
         InputStream inputStream = getResources().openRawResource(R.raw.racing_cars_json);
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream))) {
@@ -322,9 +205,6 @@ public class MainActivity extends AppCompatActivity {
         try {
             JSONObject root = new JSONObject(jsonData);
             JSONArray contentArray = root.getJSONArray("Content");
-
-            games = new ArrayList<>();
-
             for (int i = 0; i < contentArray.length(); i++) {
                 JSONObject gameObj = contentArray.getJSONObject(i);
 
@@ -335,6 +215,8 @@ public class MainActivity extends AppCompatActivity {
                 Game game = new Game(name, image, gameLink);
                 games.add(game);
             }
+
+            allGames = new ArrayList<>(games);
 
         } catch (JSONException e) {
             e.printStackTrace();

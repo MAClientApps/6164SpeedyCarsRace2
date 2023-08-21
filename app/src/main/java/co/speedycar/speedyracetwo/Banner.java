@@ -34,7 +34,7 @@ public class Banner extends Activity
 
         // Get the adaptive banner height.
         int heightDp = MaxAdFormat.BANNER.getAdaptiveSize(this).getHeight();
-        int heightPx = AppLovinSdkUtils.dpToPx(this, heightDp);
+        int heightPx = AppLovinSdkUtils.dpToPx(context, heightDp);
 
         adView.setLayoutParams(new LinearLayout.LayoutParams(width, heightPx));
         adView.setExtraParameter("adaptive_banner", "true");
