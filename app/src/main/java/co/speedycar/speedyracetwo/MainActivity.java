@@ -67,6 +67,8 @@ public class MainActivity extends AppCompatActivity {
         //initialize shared preferences
         preferences = getSharedPreferences("MyPrefs", MODE_PRIVATE);
         editor = preferences.edit();
+        editor.putString("mode", "a");
+        editor.apply();
 
         //fill racing games
         try {
@@ -266,7 +268,6 @@ public class MainActivity extends AppCompatActivity {
                 interstitialAd.loadAd();
             }
         });
-
         interstitialAd.loadAd();
     }
 

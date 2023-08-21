@@ -3,16 +3,19 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="170dp"
-    android:maxHeight="185dp"
-    android:background="@drawable/text_background"
+    android:layout_height="match_parent"
     android:layout_gravity="center"
-    android:layout_margin="7dp"
-    android:layout_height="match_parent">
+    android:layout_margin="6dp"
+    android:background="@drawable/text_background"
+    android:maxHeight="200dp"
+    android:paddingTop="5dp">
 
     <ImageView
         android:id="@+id/image"
         android:layout_width="120dp"
         android:layout_height="120dp"
+        android:background="@drawable/red_border_rounded_corners"
+        android:padding="3dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -21,11 +24,15 @@
         android:id="@+id/title"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Game title"
+        android:ellipsize="end"
         android:gravity="center"
-        android:textSize="15sp"
+        android:maxLines="2"
+        android:text="Game title"
         android:textColor="@color/tt_skip_red"
+        android:textSize="15sp"
+        app:layout_constraintBottom_toTopOf="@+id/fav_btn"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/image" />
 
@@ -34,14 +41,16 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="5dp"
-        android:text="Favourite"
-        android:textColor="@color/white"
-        android:textSize="12sp"
         android:gravity="center"
         android:paddingLeft="33dp"
         android:paddingEnd="40dp"
+        android:text="Favourite"
+        android:textColor="@color/white"
+        android:textSize="12sp"
         app:drawableStartCompat="@drawable/ic_heart"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/title" />
 

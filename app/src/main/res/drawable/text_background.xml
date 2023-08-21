@@ -7,6 +7,10 @@
         android:color="#323232" >
     </solid>
 
+    <stroke
+        android:width="2dp"
+        android:color="@color/tt_skip_red"
+        />
 
     <padding
         android:left="5dp"
