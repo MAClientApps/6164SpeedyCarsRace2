@@ -38,6 +38,7 @@ public class MainActivity extends AppCompatActivity {
     Button allCategoriesButton, favoriteButton;
     SearchView searchView;
     SharedPreferences preferences;
+    SharedPreferences.Editor editor;
     private MaxInterstitialAd interstitialAd;
     AppOpenManager appOpenManager;
 
@@ -65,6 +66,7 @@ public class MainActivity extends AppCompatActivity {
 
         //initialize shared preferences
         preferences = getSharedPreferences("MyPrefs", MODE_PRIVATE);
+        editor = preferences.edit();
 
         //fill racing games
         try {
@@ -101,6 +103,9 @@ public class MainActivity extends AppCompatActivity {
                 }
                 editor.apply();
                 gamesAdapter.notifyItemChanged(position);
+                //if we are in the favourites tab reload the favorites after we unfav a game
+                if(preferences.getString("mode", "").equals("f"))
+                    filterFavoriteGames();
             }
         }, preferences);
         gamesGrid.setAdapter(gamesAdapter);
@@ -131,11 +136,11 @@ public class MainActivity extends AppCompatActivity {
         });
 
         //same as main
-        allCategoriesButton.setOnClickListener(v -> loadMainActivity());
-        browse.setOnClickListener(v -> loadMainActivity());
+        allCategoriesButton.setOnClickListener(v -> {loadMainActivity();editor.putString("mode", "a");editor.apply();});
+        browse.setOnClickListener(v -> {loadMainActivity();editor.putString("mode", "a");editor.apply();});
         //same as main
-        favoriteButton.setOnClickListener(v -> filterFavoriteGames());
-        favoritesText.setOnClickListener(v -> filterFavoriteGames());
+        favoriteButton.setOnClickListener(v -> {filterFavoriteGames();editor.putString("mode", "f");editor.apply();});
+        favoritesText.setOnClickListener(v -> {filterFavoriteGames();editor.putString("mode", "f");editor.apply();});
         //disable clicking on navigation bar to avoid bugs
         bottomNavBar.setOnClickListener(v -> {
         });
