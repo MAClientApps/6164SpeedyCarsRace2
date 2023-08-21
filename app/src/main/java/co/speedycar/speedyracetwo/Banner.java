@@ -10,6 +10,7 @@ import com.applovin.mediation.MaxAdFormat;
 import com.applovin.mediation.MaxAdViewAdListener;
 import com.applovin.mediation.MaxError;
 import com.applovin.mediation.ads.MaxAdView;
+import com.applovin.sdk.AppLovinSdkUtils;
 
 public class Banner extends Activity
         implements MaxAdViewAdListener {
@@ -33,9 +34,9 @@ public class Banner extends Activity
 
         // Get the adaptive banner height.
         int heightDp = MaxAdFormat.BANNER.getAdaptiveSize(this).getHeight();
-//        int heightPx = AppLovinSdkUtils.dpToPx(this, heightDp);
+        int heightPx = AppLovinSdkUtils.dpToPx(this, heightDp);
 
-        adView.setLayoutParams(new LinearLayout.LayoutParams(width, heightDp));
+        adView.setLayoutParams(new LinearLayout.LayoutParams(width, heightPx));
         adView.setExtraParameter("adaptive_banner", "true");
 
         // Set background or background color for banners to be fully functional

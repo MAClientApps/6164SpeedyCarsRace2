@@ -160,9 +160,6 @@ public class WebviewActivity extends AppCompatActivity {
             @Override
             public void onAdLoaded(MaxAd ad) {
                 retryAttempt = 0;
-                if (interstitialAd.isReady()) {
-                    interstitialAd.showAd();
-                }
             }
 
             @Override
