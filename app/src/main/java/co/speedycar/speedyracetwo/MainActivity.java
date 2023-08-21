@@ -46,6 +46,7 @@ public class MainActivity extends AppCompatActivity {
     SearchView searchView;
     SharedPreferences preferences;
     private MaxInterstitialAd interstitialAd;
+    AppOpenManager appOpenManager;
 
 
     @Override
@@ -59,7 +60,7 @@ public class MainActivity extends AppCompatActivity {
         screenHeight = display.getHeight();
 
         //initialize appOpen
-        AppOpenManager appOpenManager = new AppOpenManager(this);
+        appOpenManager = new AppOpenManager(this);
 
         //initialize banner
         LinearLayout bannerLayout = findViewById(R.id.banner);
@@ -128,6 +129,7 @@ public class MainActivity extends AppCompatActivity {
         gridLayout.removeAllViews();
         addGamesToGrid();
     }
+
     //used by search bar to display only searched games
     private void updateFilteredGames(String query) {
         ArrayList<Game> filteredGames = new ArrayList<>();
@@ -369,5 +371,11 @@ public class MainActivity extends AppCompatActivity {
             interstitialAd.showAd();
         else
             interstitialAd.loadAd();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        appOpenManager.showAdIfReady();
     }
 }

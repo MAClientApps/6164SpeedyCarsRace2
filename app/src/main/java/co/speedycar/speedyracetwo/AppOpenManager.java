@@ -26,7 +26,7 @@ public class AppOpenManager implements LifecycleObserver, MaxAdListener {
         appOpenAd.loadAd();
     }
 
-    private void showAdIfReady() {
+    public void showAdIfReady() {
         if (appOpenAd == null || !AppLovinSdk.getInstance(context).isInitialized()) return;
 
         if (appOpenAd.isReady()) {
