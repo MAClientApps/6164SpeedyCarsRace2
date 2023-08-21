@@ -1,25 +1,17 @@
 package co.speedycar.speedyracetwo;
 
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.graphics.Color;
-import android.graphics.Typeface;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.view.Display;
-import android.view.Gravity;
-import android.view.View;
 import android.widget.Button;
-import android.widget.GridLayout;
-import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SearchView;
-import androidx.core.content.ContextCompat;
-
+import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.applovin.mediation.MaxAd;
 import com.applovin.mediation.MaxAdListener;
@@ -40,7 +32,8 @@ public class MainActivity extends AppCompatActivity {
     static int screenHeight, screenWidth;
     public static ArrayList<Game> games;
     public static ArrayList<Game> allGames;
-    GridLayout gridLayout;
+    RecyclerView gamesGrid;
+    GamesAdapter gamesAdapter;
     Intent intent;
     Button allCategoriesButton, favoriteButton;
     SearchView searchView;
@@ -73,11 +66,10 @@ public class MainActivity extends AppCompatActivity {
         //initialize shared preferences
         preferences = getSharedPreferences("MyPrefs", MODE_PRIVATE);
 
-        if(games!=null && preferences!=null && preferences.getString("category", "").equals("Favorites")) {
+        if (games != null && preferences != null && preferences.getString("category", "").equals("Favorites")) {
             allGames = games;
             setTitle("Favorites");
-        }
-        else{
+        } else {
             //fill racing games
             try {
                 fillGamesArray();
@@ -92,7 +84,34 @@ public class MainActivity extends AppCompatActivity {
         allGames = new ArrayList<>(games);
 
         //get ids
-        gridLayout = findViewById(R.id.gridLayout);
+        gamesGrid = findViewById(R.id.gridLayout);
+        gamesGrid.setLayoutManager(new GridLayoutManager(this, 2));
+        gamesAdapter = new GamesAdapter(this, games, new GamesAdapter.GameListener() {
+            @Override
+            public void onGameClick(Game game) {
+                intent = new Intent(MainActivity.this, WebGame.class);
+                WebGame.gameURL = game.getGameLink();
+                SharedPreferences.Editor editor = preferences.edit();
+                editor.putString("category", "Not Favorite");
+                editor.apply();
+                startActivity(intent);
+                showAd();
+                overridePendingTransition(0, 0);
+            }
+
+            @Override
+            public void onFavoriteClick(Game game) {
+                boolean isFavorite1 = preferences.getBoolean("favorite_game_" + game.getName(), false);
+                SharedPreferences.Editor editor = preferences.edit();
+                if (!isFavorite1) { //save game
+                    editor.putBoolean("favorite_game_" + game.getName(), true);
+                } else {
+                    editor.putBoolean("favorite_game_" + game.getName(), false);
+                }
+                editor.apply();
+            }
+        }, preferences);
+        gamesGrid.setAdapter(gamesAdapter);
         allCategoriesButton = findViewById(R.id.allCategories);
         favoriteButton = findViewById(R.id.favourites);
         searchView = findViewById(R.id.searchView2);
@@ -126,8 +145,7 @@ public class MainActivity extends AppCompatActivity {
         bottomNavBar.setOnClickListener(v -> {
         });
 
-        gridLayout.removeAllViews();
-        addGamesToGrid();
+//        addGamesToGrid();
     }
 
     //used by search bar to display only searched games
@@ -143,22 +161,21 @@ public class MainActivity extends AppCompatActivity {
         // Clear the current categoriesList and add the filtered categories
         games.clear();
         games.addAll(filteredGames);
-
+        gamesAdapter.notifyDataSetChanged();
         // Update the UI with filtered categories
-        addGamesToGrid();
+//        addGamesToGrid();
     }
 
-    public void addGamesToGrid(){
-        gridLayout.removeAllViews();
-        for(Game game : games){
+   /* public void addGamesToGrid() {
+        for (Game game : games) {
             //trying to make fav icon heart
 
             //create new button for the game
             Button gameButton = new Button(this);
             //dynamically configure button
             //styling
-            gameButton.setHeight((int)(screenHeight/6.5));
-            gameButton.setWidth((int)(screenWidth/3));
+            gameButton.setHeight((int) (screenHeight / 6.5));
+            gameButton.setWidth((int) (screenWidth / 3));
 
 //            Picasso.get().invalidate(game.getImage());
             Util.changeButtonBackground(this, gameButton, game.getImage());
@@ -186,7 +203,7 @@ public class MainActivity extends AppCompatActivity {
 
             //text for game name
             TextView textBackground = new TextView(this);
-            textBackground.setWidth((screenWidth/3));
+            textBackground.setWidth((screenWidth / 3));
             textBackground.setText(game.getName());
             textBackground.setTextColor(Color.rgb(244, 67, 54));
             textBackground.setBackgroundColor(Color.rgb(50, 50, 50)); // Set the background color to dark gray
@@ -197,8 +214,8 @@ public class MainActivity extends AppCompatActivity {
 
             //gameContainer styling
             LinearLayout.LayoutParams layoutParamsText = new LinearLayout.LayoutParams(
-                    LinearLayout.LayoutParams.WRAP_CONTENT , LinearLayout.LayoutParams.WRAP_CONTENT);
-            layoutParamsText.setMargins(25,25,25,10);
+                    LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+            layoutParamsText.setMargins(25, 25, 25, 10);
             gameContainer.setLayoutParams(layoutParamsText);
             gameContainer.setOrientation(LinearLayout.VERTICAL);
             Drawable drawable = ContextCompat.getDrawable(this, R.drawable.text_background);
@@ -217,19 +234,19 @@ public class MainActivity extends AppCompatActivity {
             ImageButton favoriteButton = favButtonLayout.findViewById(R.id.favorite_icon);
             //check if button is favorite
             boolean isFavorite = preferences.getBoolean("favorite_game_" + game.getName(), false);
-            if(isFavorite) // make it red
+            if (isFavorite) // make it red
                 favoriteButton.setImageResource(R.drawable.red_heart);
             else
                 favoriteButton.setImageResource(R.drawable.empty_heart);
 
             favoriteButton.setOnClickListener(v -> {
                 boolean isFavorite1 = preferences.getBoolean("favorite_game_" + game.getName(), false);
-                if(!isFavorite1){ //save game
+                if (!isFavorite1) { //save game
                     favoriteButton.setImageResource(R.drawable.red_heart);
                     SharedPreferences.Editor editor = preferences.edit();
                     editor.putBoolean("favorite_game_" + game.getName(), true);
                     editor.apply();
-                }else{
+                } else {
                     favoriteButton.setImageResource(R.drawable.empty_heart);
                     SharedPreferences.Editor editor = preferences.edit();
                     editor.putBoolean("favorite_game_" + game.getName(), false);
@@ -241,18 +258,18 @@ public class MainActivity extends AppCompatActivity {
             verticalLayout.addView(gameContainer);
             verticalLayout.addView(favButtonLayout);
             //add vertical layout to gridLayout
-            gridLayout.addView(verticalLayout);
+            gamesGrid.addView(verticalLayout);
         }
-    }
+    }*/
 
-    public static boolean containsGame(ArrayList<Game> games, String gameName){
-        for(Game game : games)
-            if(game.getName().equals(gameName))
+    public static boolean containsGame(ArrayList<Game> games, String gameName) {
+        for (Game game : games)
+            if (game.getName().equals(gameName))
                 return true;
         return false;
     }
 
-    public void loadMainActivity(){
+    public void loadMainActivity() {
         intent = new Intent(MainActivity.this, MainActivity.class);
         SharedPreferences.Editor editor = preferences.edit();
         editor.putString("category", "Not Favorite");
@@ -261,7 +278,7 @@ public class MainActivity extends AppCompatActivity {
         overridePendingTransition(0, 0); // Remove animation
     }
 
-    public void filterFavoriteGames(){
+    public void filterFavoriteGames() {
         //change src to full heart
         //initialize shared preferences
         SharedPreferences preferences = getSharedPreferences("MyPrefs", MODE_PRIVATE);
@@ -269,14 +286,14 @@ public class MainActivity extends AppCompatActivity {
         MainActivity.games = new ArrayList<>();
         //loop through all games in all categories and only add favorite games
 
-            for(Game game : allGames){
-                boolean isFavorite = preferences.getBoolean("favorite_game_" + game.getName(), false);
-                //if its a favorite game
-                if(isFavorite){
-                    if(!containsGame(MainActivity.games, game.getName()))
-                        MainActivity.games.add(game);
-                }
+        for (Game game : allGames) {
+            boolean isFavorite = preferences.getBoolean("favorite_game_" + game.getName(), false);
+            //if its a favorite game
+            if (isFavorite) {
+                if (!containsGame(MainActivity.games, game.getName()))
+                    MainActivity.games.add(game);
             }
+        }
 
         //start gameList activity
         //set title
@@ -328,7 +345,7 @@ public class MainActivity extends AppCompatActivity {
     public void onBackPressed() {
     }
 
-    public void loadInterstitialAds(){
+    public void loadInterstitialAds() {
 
         interstitialAd = new MaxInterstitialAd(getString(R.string.applovin_interstitial), this);
         interstitialAd.setListener(new MaxAdListener() {
@@ -344,7 +361,7 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onAdHidden(MaxAd maxAd) {
-
+                interstitialAd.loadAd();
             }
 
             @Override
@@ -359,18 +376,17 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onAdDisplayFailed(MaxAd maxAd, MaxError maxError) {
-
+                interstitialAd.loadAd();
             }
         });
 
         interstitialAd.loadAd();
     }
 
-    public void showAd(){
-        if(interstitialAd.isReady())
+    public void showAd() {
+        if (interstitialAd.isReady()) {
             interstitialAd.showAd();
-        else
-            interstitialAd.loadAd();
+        }
     }
 
     @Override
